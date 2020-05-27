@@ -6,8 +6,15 @@
 #       id = integer vector indicating the monitor ID numbers to be used
 
 
+
+# libraries ---------------------------------------------------------------
+
+
 library(tidyverse)
 library(purrr)
+
+
+# define function ---------------------------------------------------------
 
 
 pollutantmean <- function(directory, pollutant, id = 1:332) {
@@ -21,7 +28,7 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
         
         #create list of file names
         files <- list.files(directory)
-        file_paths = paste0(directory, sep = "/", files)
+        file_paths <- paste0(directory, sep = "/", files)
         
         #read files
         l_files <- file_paths %>% map(~read.csv(.x))
@@ -52,7 +59,6 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
         
            
 }
-
 
 
 
