@@ -30,28 +30,27 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
         files <- list.files(directory)
         file_paths <- paste0(directory, sep = "/", files)
         
-        #read files
+        #read files and convert to one big data frame
         l_files <- file_paths %>% map(~read.csv(.x))
+        df_files <- l_files %>% map(~as_tibble(.x)) %>% bind_rows()
  
         #determine which monitors to use
         l_monitors <- l_files[id] 
 
         #select pollutant and remove NA values
         if(pollutant == "sulfate"){
-                l_pollutant <- l_monitors %>% map(~as_tibble(.x)) %>% map(~select(.x, 2)) %>% map(~na.omit(.x))
+                
+                df_files_sulf <- df_files[!is.na(df_files$sulfate),]
+                mean_pollutant <- df_files_sulf %>% filter(ID %in% id) %>% summarise(mean(sulfate))
                 
         } else if(pollutant == "nitrate"){
-                l_pollutant <- l_monitors %>% map(~as_tibble(.x)) %>% map(~select(.x, 3)) %>% map(~na.omit(.x))
+                
+                df_files_nitr <- df_files[!is.na(df_files$nitrate),]
+                mean_pollutant <- df_files_nitr %>% filter(ID %in% id) %>% summarise(mean(nitrate))
                 
         }else{
                 print("Pollutant must be sulfate or nitrate")
         }
-        
-        #determine pollutant mean within each monitor
-        l_means <- l_pollutant %>% map(~unlist(.x)) %>% map(~mean(.x))
-                
-        #determine mean across monitors
-        mean_pollutant <- mean(unlist(l_means))
         
         #return result
         mean_pollutant
@@ -59,6 +58,11 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
         
            
 }
+
+
+
+
+
 
 
 
