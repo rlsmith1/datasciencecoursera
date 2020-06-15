@@ -13,10 +13,12 @@ library(purrr)
 
 # Find the best hospital in a state ---------------------------------------------
 
-# inputs: 2-character abbreviated name of a state and an outcome name
 
-# output: character vector with the name of the hospital that has the best (i.e. lowest) 30-day mortality 
-#for the specified outcome in that state
+
+# Inputs: 2-character abbreviated name of a state and an outcome name
+
+# Output: 1x1 tibble with the name of the hospital that has the best (i.e. lowest) 30-day mortality 
+#      for the specified outcome in that state
 
 
 
