@@ -1,0 +1,265 @@
+---
+title: "Impact of severe weather events on public health and the economy"
+output: html_document
+---
+
+=====================================================================================================================================
+
+# Synopsis
+
+This is the second course project for the Reproducible Research course, part of Coursera's Data Science Specialization offered through Johns Hopkins University.
+
+Severe weather events can cause drastic public health and economic consequences; thus, tracking these events and their outcomes is key to addressing these impacts. This project utilizes the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database, which tracks major weather events in the U.S. and associated variables, including: when and where they occur, total population fatalities, total population injuries, resulting property damage, and resulting agricultural damage. The following analysis demonstrates that tornadoes have the most severe impact on population health (measured by fatalities and injuries), while floods have the most severe economic consequences (measured by property and crop damage).
+
+=====================================================================================================================================
+
+# Libraries
+
+```{r libraries, warning=FALSE, message=FALSE}
+
+library(tidyverse)
+library(magrittr)
+
+
+```
+
+=====================================================================================================================================
+
+# Data processing
+
+### Data description
+
+The data utlized in this experiment can be found on the course website, or at [this link](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2).
+
+Data documentation is available at the National Weather Service [Storm Data Documentation](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf) and the National Climatic Data Center Storm Events [FAQ](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2FNCDC%20Storm%20Events-FAQ%20Page.pdf).
+
+The events in the database start in the year 1950 and end in November 2011. Of note: in the earlier years of the database there are generally fewer events recorded, most likely due to a lack of good records. More recent years should be considered more complete.
+
+### Load data
+
+Data can be downloaded and loaded into the R environment using the following commands:
+
+```{r code, eval=FALSE, echo=TRUE}
+
+download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2", 
+              destfile = "Reproducible Research/Course project 2/StormData.csv.bz2")
+
+df_stormdata <- read.csv(bzfile("Reproducible Research/Course project 2/StormData.csv.bz2"), header = TRUE) %>% 
+       as_tibble()
+
+```
+
+Where destfile is your local working directory. Also, I'm a big fan of tidyverse, so my go-to whenever I download data is to create a tibble. 
+
+However, because this takes a while to do, and for ease of use, I saved the dataframe as an Rdata object in my working directory, and can simply load it using the load() command. That way, data won't be re-downloaded and re-loaded every time you knit the Rmd file.
+
+``` {r load.data}
+
+load("df_stormdata.Rdata")
+
+```
+
+### Extract variables of interest
+
+As stated in the synopsis, we are interested in variables that address population health and economic consequences. These factors are represented in the data by the following:
+
+Events: 
+
+* EVTYPE = weather event
+
+Economic: 
+
+* PROPDMG = approximate property damages
+* PROPDMGEXP = units for property damage value
+* CROPDMG = approximate crop damages
+* CROPDMGEXP = units for crop damage value
+
+Health: 
+
+* FATALITIES = approximate number of deaths
+* INJURIES = approximate number of injuries
+
+Let's extract these variables from the original dataset:
+
+```{r select}
+
+df_stormdata2 <- df_stormdata %>% select(EVTYPE, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP, FATALITIES, INJURIES)
+
+
+```
+
+### Population health data
+
+Now let's check out the population health data in terms of fatalities and injuries. To assess severity of impact, we can simply add the total fatalities and injuries for each weather event. Here I show the top 10 most harmful for each category. Dataframes combined for future plotting ease.
+
+First we can add up fatalities by event:
+``` {r fatalities, message=FALSE}
+
+df_fatalities <- df_stormdata2 %>% 
+       
+       group_by(EVTYPE) %>% 
+       summarise(sum(FATALITIES)) %>% 
+       rename("total" = "sum(FATALITIES)") %>% 
+       arrange(-total) %>% 
+       head(10) %>% 
+       mutate(type = "Fatalities")
+
+```
+
+Then injuries:
+``` {r injuries, message=FALSE}
+
+df_injuries <- df_stormdata2 %>% 
+       
+       group_by(EVTYPE) %>% 
+       summarise(sum(INJURIES)) %>% 
+       rename("total" = "sum(INJURIES)") %>% 
+       arrange(-total) %>% 
+       head(10) %>% 
+       mutate(type = "Injuries")
+
+```
+
+Then we combine:
+``` {r combine_health}
+
+df_health <-  rbind(df_fatalities, df_injuries)
+
+df_health
+
+```
+
+### Economic consequences data
+
+The economic data is a little bit trickier to add up. The "DMGEXP" columns for both property and crop damages include a number, letter, or symbol indicated the power to which the numeric value listed should be raised to. This will give us the total cost in USD. We can address this by creating a new column that gives the associated multiplier for both property and crop damages, then multiply this by the numeric value listed.
+
+```{r exponents}
+
+df_stormdata3 <- df_stormdata2 %>% 
+       
+       mutate(prop_multiplier = case_when(
+              
+              
+              df_stormdata2$PROPDMGEXP == "" ~ 1,
+              df_stormdata2$PROPDMGEXP == "-" ~ 0,
+              df_stormdata2$PROPDMGEXP == "+" ~ 0,
+              df_stormdata2$PROPDMGEXP == "0" ~ 0,
+              df_stormdata2$PROPDMGEXP == "2" ~ 100,
+              df_stormdata2$PROPDMGEXP == "3" ~ 1000,
+              df_stormdata2$PROPDMGEXP == "4" ~ 10000,
+              df_stormdata2$PROPDMGEXP == "5" ~ 1e+05,
+              df_stormdata2$PROPDMGEXP == "6" ~ 1e+06,
+              df_stormdata2$PROPDMGEXP == "7" ~ 1e+07,
+              df_stormdata2$PROPDMGEXP == "B" ~ 1e+09,
+              df_stormdata2$PROPDMGEXP == "h" ~ 100,
+              df_stormdata2$PROPDMGEXP == "H" ~ 100,
+              df_stormdata2$PROPDMGEXP == "K" ~ 1000,
+              df_stormdata2$PROPDMGEXP == "m" ~ 1e+06,
+              df_stormdata2$PROPDMGEXP == "M" ~ 1e+06
+              
+              
+       )) %>% 
+       
+       mutate(crop_multiplier = case_when(
+              
+              
+              df_stormdata2$CROPDMGEXP == "" ~ 1,
+              df_stormdata2$CROPDMGEXP == "-" ~ 0,
+              df_stormdata2$CROPDMGEXP == "+" ~ 0,
+              df_stormdata2$CROPDMGEXP == "0" ~ 0,
+              df_stormdata2$CROPDMGEXP == "2" ~ 100,
+              df_stormdata2$CROPDMGEXP == "3" ~ 1000,
+              df_stormdata2$CROPDMGEXP == "4" ~ 10000,
+              df_stormdata2$CROPDMGEXP == "5" ~ 1e+05,
+              df_stormdata2$CROPDMGEXP == "6" ~ 1e+06,
+              df_stormdata2$CROPDMGEXP == "7" ~ 1e+07,
+              df_stormdata2$CROPDMGEXP == "B" ~ 1e+09,
+              df_stormdata2$CROPDMGEXP == "h" ~ 100,
+              df_stormdata2$CROPDMGEXP == "H" ~ 100,
+              df_stormdata2$CROPDMGEXP == "K" ~ 1000,
+              df_stormdata2$CROPDMGEXP == "m" ~ 1e+06,
+              df_stormdata2$CROPDMGEXP == "M" ~ 1e+06
+              
+              
+       )) 
+
+```
+
+Now, we can add up property damages:
+```{r property, message=FALSE}
+
+df_propdmg <- df_stormdata3 %>% 
+       
+       mutate(propdmgval = PROPDMG * prop_multiplier) %>% 
+       group_by(EVTYPE) %>% 
+       summarise(sum(propdmgval)) %>% 
+       rename("total" = "sum(propdmgval)") %>% 
+       arrange(-total) %>% 
+       head(10) %>% 
+       mutate(type = "Property")
+
+```
+
+And crop damages:
+```{r crops, message=FALSE}
+
+df_cropdmg <- df_stormdata3 %>% 
+       
+       mutate(cropdmgval = CROPDMG * crop_multiplier) %>% 
+       group_by(EVTYPE) %>% 
+       summarise(sum(cropdmgval)) %>% 
+       rename("total" = "sum(cropdmgval)") %>% 
+       arrange(-total) %>% 
+       head(10) %>% 
+       mutate(type = "Crop")
+
+```
+
+And once again combine for plotting purposes:
+```{r combine_econ}
+
+df_econ = rbind(df_propdmg, df_cropdmg)
+
+df_econ
+
+```
+
+=====================================================================================================================================
+
+# Results
+
+1. Across the US, which types of events are most harmful with respect to population health?
+
+```{r plot_1, fig.width=12, fig.height=8}
+
+df_health %>% ggplot(aes(x = EVTYPE, y = total, fill = type)) +
+       
+       geom_bar(stat = "identity") + 
+       facet_grid(~type, scales = "free") +
+       coord_flip() +
+       xlab("Event type") +
+       ylab("Number of people") +
+       ggtitle("Impact of specific weather event on population health")
+
+```
+
+Tornadoes are clearly most harmful to population health in terms of injuries and fatalities.
+
+2. Across the US, which types of events have the greatest economic consequences??
+
+```{r plot_2, fig.width=12, fig.height=8}
+
+df_econ %>% ggplot(aes(x = EVTYPE, y = total, fill = type)) +
+       
+       geom_bar(stat = "identity") + 
+       facet_grid(~type, scales = "free") +
+       coord_flip() +
+       xlab("Event type") +
+       ylab("Economic cost (in billions of dollars)") +
+       ggtitle("Economic consequences of specific weather event")
+
+```
+
+Floods appear to cause the most economic damage, with regard to both property and crops.
+
+
