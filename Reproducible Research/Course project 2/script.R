@@ -12,13 +12,11 @@
 
        download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2", 
                      destfile = "Reproducible Research/Course project 2/StormData.csv.bz2")
-
-       if(!exists(df_stormdata)){
               
-              df_stormdata <- read.csv(bzfile("Reproducible Research/Course project 2/StormData.csv.bz2"), header = TRUE) %>% 
+        df_stormdata <- read.csv(bzfile("Reproducible Research/Course project 2/StormData.csv.bz2"), header = TRUE) %>% 
                      as_tibble()
 
-       }
+     
 
        # extract variables of interest
 
@@ -31,6 +29,8 @@
        #             INJURIES = approximate number of injuries 
 
        df_stormdata2 <- df_stormdata %>% select(EVTYPE, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP, FATALITIES, INJURIES)
+       
+       save(df_stormdata, file="Reproducible Research/Course project 2/df_stormdata.Rdata")
        
        # Population health data
        
@@ -57,6 +57,8 @@
               # combine
               
               df_health = rbind(df_fatalities, df_injuries)
+              
+              df_stormdata
               
        # Economic consequences data
               
