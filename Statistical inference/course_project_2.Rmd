@@ -1,0 +1,136 @@
+---
+title: 'Statistical Inference: Course project 2'
+author: "Rachel Smith"
+date: "8/4/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+
+```
+
+## Overview
+
+The following report is in completion of part 2 of the Coursera Statistical Inference Course Project. The following criteria are required:
+
+1. Load the ToothGrowth data and perform some basic exploratory analysis
+2. Provide a basic summary of the data
+3. Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose
+4. State conclusions and assumptions needed for these conclusions
+
+## Load and summarize data
+
+```{r data}
+
+data("ToothGrowth")
+
+df_toothgrowth <- as_tibble(ToothGrowth)
+
+head(df_toothgrowth)
+
+```
+```{r summarize}
+
+summary(ToothGrowth)
+
+```
+
+## Exploratory data analysis
+
+```{r len_dose}
+
+# convert dose to factor
+
+df_toothgrowth <- df_toothgrowth %>% mutate(dose = as.factor(dose))
+
+# plot tooth length as a function of dose, by supplement
+
+df_toothgrowth %>% ggplot(aes(x = dose, y = len, fill = dose)) +
+       
+       geom_boxplot() +
+       facet_grid(~supp) +
+       ggtitle("Tooth length vs dose by delivery method") + 
+       ylab("Tooth length")
+
+```
+
+```{r len_supp}
+
+# plot tooth length as function of delivery method by dose
+
+df_toothgrowth %>% ggplot(aes(x = supp, y = len, fill = supp)) +
+       
+       geom_boxplot() +
+       facet_grid(~dose) +
+       ggtitle("Tooth length vs delivery method by dosage") + 
+       xlab("Delivery method") +
+       ylab("Tooth length")
+
+
+```
+
+## What affects tooth growth?
+
+#### Does tooth length depend on delivery method?
+
+```{r t.len_supp}
+
+t.test(len ~ supp, data = df_toothgrowth) 
+      
+```
+
+The p-value is 0.06 and confidence interval contains zero, therefore we cannot reject the null and must assume that supplement delivery method doesn't affect tooth length.
+
+#### Does tooth length depend on dose?
+
+
+Compare 0.5 to 1.0
+```{r t.len_dose1}
+
+t.test(len ~ dose, data = df_toothgrowth %>% filter(dose == c("0.5","1")))
+
+```
+
+Compare 0.5 to 2
+```{r t.len_dose2}
+
+t.test(len ~ dose, data = df_toothgrowth %>% filter(dose == c("0.5","2")))
+
+```
+
+Compare 1 to 2
+```{r t.len_dose3}
+
+t.test(len ~ dose, data = df_toothgrowth %>% filter(dose == c("1","2")))
+
+```
+
+All p-values are less than 0.05 and no CIs cross 0; therefore we can reject the null hypothesis and assume that dose affects tooth length.
+
+## Conlusions
+
+Under the assumptions that the sample is representative of the population, and the distribution of the sample means follow the Central Limit Theorem, we can conclude that the supplement delivery method does not affect tooth growth, but dosage size does affect tooth length.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

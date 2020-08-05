@@ -1,8 +1,10 @@
 ---
-title: "Statistical Inference: Course project 1"
+title: 'Statistical Inference: Course project 1'
 author: "Rachel Smith"
 date: "August 4, 2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
