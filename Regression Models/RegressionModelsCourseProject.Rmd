@@ -1,0 +1,123 @@
+---
+title: "Regression Models Course Project"
+author: "Rachel Smith"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, message = FALSE)
+
+library(tidyverse)
+
+```
+
+## Executive summary
+
+In this report, we examine the mtcars data set to explore how miles per gallon (mpg) is affected by transmission. The questions addressed by this investigation are as follows:
+
+(1) Is automatic of manual transmission better for mpg?
+(2) Can we quantify the mpg difference between automatic and manual transmissions?
+
+```{r data}
+
+# import
+data("mtcars")
+
+# structure
+df_mtcars <- as_tibble(mtcars) %>% 
+       mutate(am = as.factor(am)) %>% 
+       mutate(cyl = as.factor(cyl))
+
+```
+
+## Exploratory analysis
+
+```{r violin}
+
+df_mtcars %>% ggplot(aes(x = am, y = mpg, fill = am)) +
+       
+       geom_violin(alpha = 0.7) +
+       geom_boxplot(width = 0.3, alpha = 0.7) +
+       geom_point(size = 2) +
+       
+       xlab("Transmission") +
+       ylab("Miles per gallon (mpg)") +
+       ggtitle("Miles per gallon by transmission type") +
+       scale_x_discrete(labels = c("0" = "automatic", "1" = "manual")) +
+       
+       theme_bw() +
+       theme(legend.position = "none")
+
+```
+Based on this plot, it looks like manual vehicles have higher miles per gallon, on average. Let's fit some models to quantify that relationship.
+
+## Simple linear regression model
+
+```{r simple}
+
+fit_lm <- lm(mpg ~ am, data = df_mtcars)
+summary(fit_lm)
+
+```
+
+```{r coef}
+
+# automatic
+coef(fit_lm)[[1]] 
+
+# manual
+coef(fit_lm)[[1]] + coef(fit_lm)[[2]] 
+
+```
+Automatic cars (a0) have on average 17.147 mpg, while manual cars have on average 24.392 mpg. This aligns with what we saw in the exploratory analysis.
+
+```{r p_r2}
+
+# P-values
+summary(fit_lm)$coefficients[,4] 
+
+# R-squared
+summary(fit_lm)$r.squared 
+
+```
+The p-values are statistically significant (p < 0.05), however, the r-squared value for the model is only ~0.36. This indicates that only about a third of the variance in mpg can be attributed to transmission type alone, suggesting that there are other confounding variables we need to include in the model.
+
+## Multivariable linear regression model
+
+Our R-squared in the simple linear regression model indicated there are other confounding variables contributing to variance in mpg. Let's run an ANOVA to see what these variables are:
+
+```{r anova}
+
+aov(mpg ~ ., data = df_mtcars) %>% summary()
+
+```
+cyl, disp, and wt all have p-values < 0.05, suggesting they also contribute to the variance. hp is also very low (less than am), so we can explore including that in the model.
+
+```{r multi}
+
+fit_multi <- lm(mpg ~ am + cyl + disp + wt + hp, data = df_mtcars)
+
+summary(fit_multi)
+
+```
+
+```{r new_r2}
+
+summary(fit_multi)$r.squared
+
+```
+The r-squared for this model is ~0.84 - much higher than the previous models. This suggests this model better represents these data.
+
+```{r residuals}
+
+par(mfrow = c(2,2))
+plot(fit_multi)
+
+```
+The residuals are homoscedastic (have approximately the same variance) and are approximately normally distributed as per the quantile plot. 
+                     
+## Conclusion 
+Thus, wt, hp, and 6 cyl are confounding variables in the relationship between am and mpg (p < 0.05). Holding these confounding variables constant, manual has on average 1.8 mpg higher than automatic
+
+

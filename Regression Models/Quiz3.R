@@ -5,6 +5,10 @@ data("mtcars")
 mtcars <- as_tibble(mtcars) %>% mutate(cyl = as.factor(cyl))
 
 
+# questions ---------------------------------------------------------------
+
+
+
 # 1
 fit1 <- lm(mpg ~ cyl + wt, mtcars)
 
