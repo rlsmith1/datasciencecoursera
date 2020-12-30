@@ -64,7 +64,7 @@
        # visualize correlations among variables
        pca_res <- princomp(cor(df_train %>% select(-classe)))
        
-       fviz_eig(pca_res) # percentage of variange explained by each PC
+       fviz_eig(pca_res) # percentage of variance explained by each PC
        fviz_pca_ind(pca_res, col.ind = "cos2", repel = TRUE)
 
        
