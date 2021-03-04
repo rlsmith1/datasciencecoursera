@@ -14,7 +14,9 @@
 
 # load data ---------------------------------------------------------------
 
-       df_covid <- read.csv("https://covid.ourworldindata.org/data/owid-covid-data.csv") %>% as_tibble()
+       # setwd("Developing Data Products/COVID-19_World_Vaccination_Progress/")
+        
+       df_covid <- read.csv("owid-covid-data.csv") %>% as_tibble()
        
 
 # format data -------------------------------------------------------------
