@@ -1,0 +1,69 @@
+---
+title: "Week 3 Assignment"
+author: "Rachel Smith"
+date: "3/3/2021"
+output: ioslides_presentation
+
+---
+
+Overview
+========================================================
+
+- This presentation is in for the week 3 assignment of the Developing Data Products course as part of Coursera JHU Data Science Specialization
+- Task: create a web page presentation that features a plot created with Plotly
+
+## Load libraries & data
+
+```{r, message = FALSE, warning = FALSE}
+
+library(tidyverse)
+library(plotly)
+
+data(diamonds)
+
+```
+
+Here are the available variables to look at:
+```{r vars}
+
+colnames(diamonds)
+
+```
+
+Subset the data
+```{r subset}
+
+df_diamonds <- diamonds[sample(nrow(diamonds), 1000),]
+
+```
+
+## Plot 1: Distribution of Diamond Prices
+
+```{r plot 1, echo = FALSE, message = FALSE, warning = FALSE}
+
+p1 <- df_diamonds %>% 
+       
+       ggplot(aes(x = price)) +
+       geom_histogram() 
+
+ggplotly(p1)
+
+```
+
+## Plot 2: Diamond price by carat
+
+```{r plot2, echo = FALSE, message = FALSE, warning = FALSE}
+
+p2 <- df_diamonds %>% 
+       
+       ggplot(aes(x = carat, y = price)) +
+       geom_point(aes(color = clarity)) 
+
+ggplotly(p2)
+
+```
+
+
+
+
+

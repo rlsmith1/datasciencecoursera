@@ -1,0 +1,39 @@
+---
+title: "Week 2 Project"
+author: "Rachel Smith"
+date: "3/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+
+library(leaflet)
+library(tidyverse)
+
+```
+
+### Map of ultras I've run
+
+```{r map}
+
+df_races <- tibble(lat = c(37.2677443, 39.6523617, 37.2304309, 35.7127451, 36.6212489),
+                   lng = c(-80.0251801, -78.7966406, -80.4994957, -83.465675, -81.4866732),
+                   race = c("Blue Ridge Marathon", "Fire on the Mountain 50K", "Gateway 25K", "Smoky Mountain Relay", "Blue Ridge Relay"))
+
+df_races %>% 
+       leaflet() %>% 
+       addTiles() %>% 
+       addMarkers(popup = df_races$race)
+
+
+```
+
+
+
+
+
+
+
+

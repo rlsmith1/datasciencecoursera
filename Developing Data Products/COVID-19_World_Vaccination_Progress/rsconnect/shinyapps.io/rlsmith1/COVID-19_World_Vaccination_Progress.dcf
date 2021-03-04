@@ -1,0 +1,12 @@
+name: COVID-19_World_Vaccination_Progress
+title: COVID-19_World_Vaccination_Progress
+username:
+account: rlsmith1
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3736804
+bundleId: 4301608
+url: https://rlsmith1.shinyapps.io/COVID-19_World_Vaccination_Progress/
+when: 1614887139.34746
+asMultiple: FALSE
+asStatic: FALSE

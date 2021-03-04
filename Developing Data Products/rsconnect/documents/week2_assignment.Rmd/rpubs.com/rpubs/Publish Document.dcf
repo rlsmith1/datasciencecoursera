@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/733482/2fbfaf3dff6d439bb76eafb82708610f
+bundleId: https://api.rpubs.com/api/v1/document/733482/2fbfaf3dff6d439bb76eafb82708610f
+url: http://rpubs.com/rlsmith1/733482
+when: 1614779998.29132
