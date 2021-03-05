@@ -14,17 +14,17 @@
 
 # load data ---------------------------------------------------------------
 
-       # setwd("Developing Data Products/COVID-19_World_Vaccination_Progress/")
-        
-       df_covid <- read.csv("owid-covid-data.csv") %>% as_tibble()
+
+       df_covid <- read_csv("owid-covid-data.csv", 
+                            col_types = paste0(c(rep("c", 4), rep("d", 55)), collapse = "")) 
        
 
 # format data -------------------------------------------------------------
 
-       df_covid <- df_covid %>% mutate(date = as.Date(date, format = "%Y-%m-%d"))
+       df_covid <- df_covid %>% mutate(date = as.Date(date, format = "%m/%d/%y"))
        
        # current
-       df_covid_current <- df_covid %>% filter(date == Sys.Date() - 1)
+       df_covid_current <- df_covid %>% filter(date == "2021-03-03")
        
        # get world map
        sp_wmap <- getMap(resolution = "high")
@@ -84,12 +84,21 @@
            
            output$p_comparisons <- renderPlotly({
                   
-                  
+                   print(df_covid_current)
+                   
+                   print(input$x)
+                   
+                   print(input$y)
+                   
+                   print(input$color)
+                   
+                   
                   p3 <- df_covid_current %>% filter(location != "World") %>% 
                          
                          ggplot() +
                          geom_point(aes_string(x = input$x, y = input$y, color = input$color, label = "location")) +
                          theme_bw()
+                  
                   
                   ggplotly(p3)
                   

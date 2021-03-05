@@ -1,5 +1,24 @@
 
-library(shiny)
+# libraries ---------------------------------------------------------------
+
+
+    library(shiny)
+    library(tidyverse)
+    library(plotly)
+    library(leaflet)
+
+
+
+# data --------------------------------------------------------------------
+
+    df_covid <-read_csv("owid-covid-data.csv", col_types = paste0(c(rep("c", 4), rep("d", 55)), collapse = "")) %>% 
+        
+        mutate(date = as.Date(date, format = "%m/%d/%y"))
+
+
+# plot UIs ----------------------------------------------------------------
+
+
 
 # Draw time course plot
 shinyUI(fluidPage(
