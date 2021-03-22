@@ -98,7 +98,7 @@
              df_eng_4grams_filt, df_eng_4grams_count,
              file = "capstone project/task3_objects.Rdata")
         
-        load("capstone project/task3_objects.Rdata")
+        load("capstone project/outputs/task3_objects.Rdata")
 
         
 # N-gram model ------------------------------------------------------------
@@ -196,7 +196,8 @@
         # Explore model!
         f_backoff("eat", "my", "soup")
                 
-        
+        # save functions
+        save(f_backoff_bigram, f_backoff_trigram, f_backoff, file = "capstone project/outputs/backoff_functions.Rdata")
         
         
         
